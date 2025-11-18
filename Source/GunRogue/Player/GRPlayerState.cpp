@@ -1,5 +1,6 @@
 #include "Player/GRPlayerState.h"
 #include "Player/GRPlayerController.h"
+#include "Player/Battle/GRBattlePlayerController.h"
 #include "Character/GRCharacter.h"
 #include "Character/GRPawnData.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
@@ -151,19 +152,28 @@ void AGRPlayerState::ServerRPC_UnequipItemActor_Implementation(int32 ItemIndex)
 
 void AGRPlayerState::OnPawnSetted(APlayerState* Player, APawn* NewPawn, APawn* OldPawn)
 {
-	InitAbilitySystemComponent();
+	if (IsValid(NewPawn))
+	{
+		InitAbilitySystemComponent();
+	}
 }
 
 void AGRPlayerState::InitAbilitySystemComponent()
 {
+	if (bIsAbilitySystemComponentInit)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AbilitySystemComponent Already Init..."));
+		return;
+	}
+
 	AGRCharacter* GRCharacter = GetGRCharacter();
 	if (!IsValid(GRCharacter))
 	{
 		return;
 	}
 
-	const UGRPawnData* PwanData = GRCharacter->GetPawnData();
-	if (!PwanData)
+	const UGRPawnData* PawnData = GRCharacter->GetPawnData();
+	if (!PawnData)
 	{
 		return;
 	}
@@ -175,10 +185,17 @@ void AGRPlayerState::InitAbilitySystemComponent()
 
 	AbilitySystemComponent->InitAbilityActorInfo(this /*Owner*/, GRCharacter /*Avatar*/);
 
-	for (UGRAbilitySet* AbilitySet : PwanData->AbilitySets)
+	for (UGRAbilitySet* AbilitySet : PawnData->AbilitySets)
 	{
 		AbilitySet->GiveToAbilitySystem(AbilitySystemComponent, &GrantedHandles);
 	}
+
+	if (OnAbilitySystemComponentInit.IsBound())
+	{
+		OnAbilitySystemComponentInit.Broadcast();
+	}
+
+	bIsAbilitySystemComponentInit = true;
 }
 
 void AGRPlayerState::OnEquipItem(UGRItemDefinition* ItemDefinition)
@@ -194,7 +211,8 @@ void AGRPlayerState::OnEquipItem(UGRItemDefinition* ItemDefinition)
 	}
 
 	AGRPlayerController* GRPlayerController = GetGRPlayerController();
-	if (!IsValid(GRPlayerController))
+	AGRBattlePlayerController* GRBattlePlayerController = Cast<AGRBattlePlayerController>(GRPlayerController);
+	if (!IsValid(GRBattlePlayerController))
 	{
 		return;
 	}
@@ -206,7 +224,7 @@ void AGRPlayerState::OnEquipItem(UGRItemDefinition* ItemDefinition)
 
 	for (const FGRAbilitySet_GameplayEffect& Effect : ItemDefinition->AbilitySet->GetGameplayEffects())
 	{
-		GRPlayerController->ClientRPC_OnActiveGameplayEffectAdded(Effect.GameplayEffect);
+		GRBattlePlayerController->ClientRPC_OnActiveGameplayEffectAdded(Effect.GameplayEffect);
 	}
 }
 
@@ -223,7 +241,8 @@ void AGRPlayerState::OnUnequipItem(UGRItemDefinition* ItemDefinition)
 	}
 
 	AGRPlayerController* GRPlayerController = GetGRPlayerController();
-	if (!IsValid(GRPlayerController))
+	AGRBattlePlayerController* GRBattlePlayerController = Cast<AGRBattlePlayerController>(GRPlayerController);
+	if (!IsValid(GRBattlePlayerController))
 	{
 		return;
 	}
@@ -235,7 +254,7 @@ void AGRPlayerState::OnUnequipItem(UGRItemDefinition* ItemDefinition)
 
 	for (const FGRAbilitySet_GameplayEffect& Effect : ItemDefinition->AbilitySet->GetGameplayEffects())
 	{
-		GRPlayerController->ClientRPC_OnActiveGameplayEffectRemoved(Effect.GameplayEffect);
+		GRBattlePlayerController->ClientRPC_OnActiveGameplayEffectRemoved(Effect.GameplayEffect);
 	}
 }
 

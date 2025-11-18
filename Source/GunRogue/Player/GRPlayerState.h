@@ -11,6 +11,8 @@ class AGRCharacter;
 class UGRAbilitySystemComponent;
 struct FGameplayEffectSpec;
 
+DECLARE_MULTICAST_DELEGATE(FOnAbilitySystemComponentInit);
+
 UCLASS()
 class GUNROGUE_API AGRPlayerState : public APlayerState, public IAbilitySystemInterface
 {
@@ -31,6 +33,10 @@ public:
 	UGRAbilitySystemComponent* GetGRAbilitySystemComponent();
 
 	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+	FOnAbilitySystemComponentInit OnAbilitySystemComponentInit;
+
+	bool IsAbilitySystemComponentInit() const { return bIsAbilitySystemComponentInit; }
 
 	UFUNCTION(BlueprintCallable)
 	bool HasItem(UGRItemDefinition* ItemDefinition);
@@ -73,4 +79,6 @@ private:
 
 	FVector GetGroundPointUsingLineTrace(AActor* SpawnedActor);
 	void PlaceActorOnGround(AActor* SpawnedActor);
+
+	bool bIsAbilitySystemComponentInit = false;
 };
