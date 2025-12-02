@@ -3,7 +3,8 @@
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
-#include "UI/Weapon/GRWeaponUpgrade.h"
+#include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
+#include "UI/Inventory/GRInventoryWidgetMain.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
@@ -38,10 +39,7 @@ void AGRBattlePlayerController::EndPlay(EEndPlayReason::Type EndPlayReason)
 {
 	Super::EndPlay(EndPlayReason);
 
-	if (OtherPlayerStatusUpdateTimer.IsValid())
-	{
-		GetWorldTimerManager().ClearTimer(OtherPlayerStatusUpdateTimer);
-	}
+	FinalizeBattleHUD();
 }
 
 void AGRBattlePlayerController::OnRep_PlayerState()
@@ -71,25 +69,8 @@ void AGRBattlePlayerController::OnRep_PlayerState()
 void AGRBattlePlayerController::InitUISetup()
 {
 	CreateWidgets();
-	InitBattleHUD();
+	InitializeBattleHUD();
 	ShowBattleHUD();
-}
-
-void AGRBattlePlayerController::ShowBattleHUD()
-{
-	if (!HUDWidgetInstance)
-	{
-		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance is INVALID"));
-		return;
-	}
-	if (!HUDWidgetInstance->IsInViewport())
-	{
-		HUDWidgetInstance->AddToViewport();
-	}
-
-	FInputModeGameOnly Mode;
-	SetInputMode(Mode);
-	bShowMouseCursor = false;
 }
 
 void AGRBattlePlayerController::CreateWidgets()
@@ -113,80 +94,23 @@ void AGRBattlePlayerController::CreateWidgets()
 		return;
 	}
 
-	UpgradeConsoleWidgetInstance = CreateWidget<UUserWidget>(this, UpgradeConsoleWidgetClass);
+	UpgradeConsoleWidgetInstance = CreateWidget<UGRWeaponUpgradeWidgetSetting>(this, UpgradeConsoleWidgetClass);
 	if (!UpgradeConsoleWidgetInstance)
 	{
 		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRWeaponUpgrade Widgets"));
 		return;
 	}
-}
 
-void AGRBattlePlayerController::InitBattleHUD()
-{
-	AGRPlayerState* GRPlayerState = GetPlayerState<AGRPlayerState>();
-	if (!IsValid(GRPlayerState))
+	if (!InventoryWidgetClass)
 	{
-		UE_LOG(LogTemp, Error, TEXT("GRPlayerState (AGRPlayerState) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("InventoryWidgetClass (TSubclassOf<UGRInventoryWidgetMain>) is INVALID"));
 		return;
 	}
 
-	UGRAbilitySystemComponent* ASC = GRPlayerState->GetGRAbilitySystemComponent();
-	if (!IsValid(ASC))
+	InventoryWidgetInstance = CreateWidget<UGRInventoryWidgetMain>(this, InventoryWidgetClass);
+	if (!InventoryWidgetInstance)
 	{
-		UE_LOG(LogTemp, Error, TEXT("ASC (UGRAbilitySystemComponent) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRInventoryWidgetMain Widgets"));
 		return;
 	}
-
-	const UAttributeSet* AttributeSet = ASC->GetAttributeSet(UGRHealthAttributeSet::StaticClass());
-	const UGRHealthAttributeSet* HealthSet = Cast<UGRHealthAttributeSet>(AttributeSet);
-	if (!IsValid(HealthSet))
-	{
-		UE_LOG(LogTemp, Error, TEXT("HealthSet (UGRHealthAttributeSet) is INVALID"));
-		return;
-	}
-
-	ASC->GetGameplayAttributeValueChangeDelegate(
-		UGRHealthAttributeSet::GetHealthAttribute()).AddUObject(this, &ThisClass::OnHealthChanged);
-
-	ASC->GetGameplayAttributeValueChangeDelegate(
-		UGRHealthAttributeSet::GetMaxHealthAttribute()).AddUObject(this, &ThisClass::OnMaxHealthChanged);
-
-	ASC->GetGameplayAttributeValueChangeDelegate(
-		UGRHealthAttributeSet::GetShieldAttribute()).AddUObject(this, &ThisClass::OnShieldChanged);
-
-	ASC->GetGameplayAttributeValueChangeDelegate(
-		UGRHealthAttributeSet::GetMaxShieldAttribute()).AddUObject(this, &ThisClass::OnMaxShieldChanged);
-
-
-	float Health = HealthSet->GetHealth();
-	float MaxHealth = HealthSet->GetMaxHealth();
-	float Shield = HealthSet->GetShield();
-	float MaxShield = HealthSet->GetMaxShield();
-
-	UpdatePlayerHealth(Health);
-	UpdatePlayerMaxHealth(MaxHealth);
-	UpdatePlayerShield(Shield);
-	UpdatePlayerMaxShield(MaxShield);
-
-	GetWorldTimerManager().SetTimer(OtherPlayerStatusUpdateTimer, this, &ThisClass::OnUpdateOtherPlayerStatus, OtherPlayerStatusUpdateInterval, true);
-}
-
-void AGRBattlePlayerController::OnHealthChanged(const FOnAttributeChangeData& Data)
-{
-	UpdatePlayerHealth(Data.NewValue);
-}
-
-void AGRBattlePlayerController::OnMaxHealthChanged(const FOnAttributeChangeData& Data)
-{
-	UpdatePlayerMaxHealth(Data.NewValue);
-}
-
-void AGRBattlePlayerController::OnShieldChanged(const FOnAttributeChangeData& Data)
-{
-	UpdatePlayerShield(Data.NewValue);
-}
-
-void AGRBattlePlayerController::OnMaxShieldChanged(const FOnAttributeChangeData& Data)
-{
-	UpdatePlayerMaxShield(Data.NewValue);
 }
