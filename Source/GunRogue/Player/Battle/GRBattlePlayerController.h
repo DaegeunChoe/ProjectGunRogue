@@ -4,17 +4,21 @@
 #include "GRBattlePlayerController.generated.h"
 
 class UGRBattleHUDWidget;
+class UGRLevel1SelectWidget;
+class AGRLevel1ControlPanel;
+class UGRWeaponUpgrade;
 class UGRWeaponDefinition;
 class UGRWeaponUpgradeWidgetSetting;
 class UGRInventoryWidgetMain;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
+struct FGRLevel1Data;
 
 UCLASS()
 class GUNROGUE_API AGRBattlePlayerController : public AGRPlayerController
 {
 	GENERATED_BODY()
-	
+
 public:
 	AGRBattlePlayerController();
 	virtual void BeginPlay() override;
@@ -122,4 +126,34 @@ protected:
 	UPROPERTY()
 	TObjectPtr<UGRInventoryWidgetMain> InventoryWidgetInstance;
 #pragma endregion Inventory
+
+/* Level1 관련 코드 */
+#pragma region Level1
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowLevel1SelectWidget(AGRLevel1ControlPanel* ControlPanel);
+
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_HideLevel1SelectWidget();
+
+	UFUNCTION(Server, Reliable)
+	void ServerRPC_OnSelectNextRoom(int32 NextRoomIndex, AGRLevel1ControlPanel* ControlPanel);
+
+	UFUNCTION(BlueprintCallable)
+	void ShowLevel1SelectWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideLevel1SelectWidget();
+
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRLevel1SelectWidget> Level1SelectWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRLevel1SelectWidget> Level1SelectWidgetInstance;
+
+private:
+	void SetLevel1SelectWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel);
+
+#pragma endregion Level1
 };

@@ -1,13 +1,18 @@
 #include "Player/Battle/GRBattlePlayerController.h"
+#include "Player/Battle/GRBattleCheatManager.h"
 #include "Player/GRPlayerState.h"
 #include "AbilitySystem/GRAbilitySystemComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "UI/BattleHUD/GRBattleHUDWidget.h"
+#include "UI/Level1/GRLevel1SelectWidget.h"
 #include "UI/Weapon/GRWeaponUpgradeWidgetSetting.h"
 #include "UI/Inventory/GRInventoryWidgetMain.h"
 
 AGRBattlePlayerController::AGRBattlePlayerController()
 {
+#if WITH_EDITOR
+	CheatClass = UGRBattleCheatManager::StaticClass();
+#endif
 }
 
 void AGRBattlePlayerController::BeginPlay()
@@ -77,7 +82,7 @@ void AGRBattlePlayerController::CreateWidgets()
 {
 	if(!HUDWidgetClass)
 	{
-		UE_LOG(LogTemp, Error, TEXT("HUDWidgetClass (TSubclassOf<UGRBattleHUDWidget>) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetClass (TSubclassOf<>) is INVALID"));
 		return;
 	}
 
@@ -88,16 +93,29 @@ void AGRBattlePlayerController::CreateWidgets()
 		return;
 	}
 
+	if (!Level1SelectWidgetClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Level1SelectWidgetClass (TSubclassOf<>) is INVALID"));
+		return;
+	}
+
+	Level1SelectWidgetInstance = CreateWidget<UGRLevel1SelectWidget>(this, Level1SelectWidgetClass);
+	if (!Level1SelectWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create Level1SelectWidget Widgets"));
+		return;
+	}
+
 	if (!UpgradeConsoleWidgetClass)
 	{
-		UE_LOG(LogTemp, Error, TEXT("UpgradeConsoleWidgetClass (TSubclassOf<UGRWeaponUpgrade>) is INVALID"));
+		UE_LOG(LogTemp, Error, TEXT("UpgradeConsoleWidgetClass (TSubclassOf<UGRWeaponUpgradeWidgetSetting>) is INVALID"));
 		return;
 	}
 
 	UpgradeConsoleWidgetInstance = CreateWidget<UGRWeaponUpgradeWidgetSetting>(this, UpgradeConsoleWidgetClass);
 	if (!UpgradeConsoleWidgetInstance)
 	{
-		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRWeaponUpgrade Widgets"));
+		UE_LOG(LogTemp, Error, TEXT("CANNOT Create UGRWeaponUpgradeWidgetSetting Widgets"));
 		return;
 	}
 

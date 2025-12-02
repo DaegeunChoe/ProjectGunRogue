@@ -9,6 +9,11 @@ void AGRBattlePlayerController::ClientRPC_ToggleInventoryWidget_Implementation()
 
 void AGRBattlePlayerController::ToggleInventoryWidget()
 {
+	if (!InventoryWidgetInstance)
+	{
+		return;
+	}
+
 	if (InventoryWidgetInstance->IsInViewport())
 	{
 		HideInventoryWidget();
