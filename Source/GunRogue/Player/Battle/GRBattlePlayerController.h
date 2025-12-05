@@ -10,6 +10,7 @@ class UGRWeaponUpgrade;
 class UGRWeaponDefinition;
 class UGRWeaponUpgradeWidgetSetting;
 class UGRInventoryWidgetMain;
+class UGRAugmentHUDWidget;
 struct FGameplayEffectSpec;
 struct FOnAttributeChangeData;
 struct FGRLevel1Data;
@@ -159,4 +160,28 @@ private:
 	void SetLevel1SelectWidget(const FGRLevel1Data& Level1Data, AGRLevel1ControlPanel* ControlPanel);
 
 #pragma endregion Level1
+
+/* 증강 관련 코드 */
+#pragma region Augment
+public:
+	UFUNCTION(Client, Reliable)
+	void ClientRPC_ShowAugmentWidget();
+	
+	UFUNCTION(BlueprintCallable)
+	void ShowAugmentWidget();
+
+	UFUNCTION(BlueprintCallable)
+	void HideAugmentWidget();
+
+	UFUNCTION()
+	void RequestSelectAugment(FName AugmentID);
+	
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
+	TSubclassOf<UGRAugmentHUDWidget> AugmentWidgetClass;
+
+	UPROPERTY()
+	TObjectPtr<UGRAugmentHUDWidget> AugmentWidgetInstance;
+	
+#pragma endregion Augment
 };
