@@ -14,6 +14,7 @@ class UGRInputHandleComponent;
 class UGRInteractionComponent;
 class UGRAttachmentComponent;
 class UGRPawnData;
+class UGRRadarMapComponent;
 
 UCLASS()
 class GUNROGUE_API AGRCharacter : public ACharacter, public IAbilitySystemInterface
@@ -56,6 +57,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<UCameraComponent> CameraComponent;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRRadarMapComponent> RadarMapComponent;
 	
 	UFUNCTION(BlueprintImplementableEvent, Category = "Spectate")
 	void SpectateNextPlayer();

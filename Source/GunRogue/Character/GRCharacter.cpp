@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "AbilitySystem/Attributes/GRHealthAttributeSet.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "MiniMap/GRRadarMapComponent.h"
 #include "Net/UnrealNetwork.h"
 
 AGRCharacter::AGRCharacter()
@@ -18,6 +19,7 @@ AGRCharacter::AGRCharacter()
 	InputHandleComponent = CreateDefaultSubobject<UGRInputHandleComponent>(TEXT("InputHandleComponent"));
 	InteractionComponent = CreateDefaultSubobject<UGRInteractionComponent>(TEXT("GRInteractionComponent"));
 	AttachmentComponent = CreateDefaultSubobject<UGRAttachmentComponent>(TEXT("AttachmentComponent"));
+	RadarMapComponent = CreateDefaultSubobject<UGRRadarMapComponent>(TEXT("RadarMapComponent"));
 
 	SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArmComponent"));
 	SpringArmComponent->SetupAttachment(RootComponent);
