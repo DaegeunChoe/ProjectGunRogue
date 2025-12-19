@@ -14,6 +14,7 @@ class UGRAugmentHUDWidget;
 class UGRSpectatorHUDWidget;
 class UGRDamageIndicator;
 class UGRGameOverWidget;
+class UGRRadarMapComponent;
 class UGRInGameHUDWidget;
 class AGRLuwoAICharacter;
 struct FGameplayEffectSpec;
@@ -72,7 +73,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void HideGameOverWidget();
 
-	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }	
+	UGRBattleHUDWidget* GetBattleHUDWidget() const { return HUDWidgetInstance; }
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Components")
+	TObjectPtr<UGRRadarMapComponent> RadarMapComponent;
 
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GunRogue|Map")
