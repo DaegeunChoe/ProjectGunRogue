@@ -16,6 +16,7 @@
 #include "UI/BattleHUD/SubWidgets/GRTeamStatusWidget.h"
 #include "UI/Damage/GRDamageIndicator.h"
 #include "MiniMap/GRRadarMapComponent.h"
+#include "UI/BattleHUD/SubWidgets/GRNotifyMessageWidget.h"
 
 void AGRBattlePlayerController::InitializeBattleHUD()
 {
@@ -531,6 +532,7 @@ void AGRBattlePlayerController::ShowDamageIndicator(float Damage, AActor* Damage
 	DamageIndicatorWidgetInstance->AddToViewport();
 }
 
+
 void AGRBattlePlayerController::ShowSpectatorHUD()
 {
 	if (!SpectatorWidgetInstance)
@@ -768,6 +770,30 @@ void AGRBattlePlayerController::ClientRPC_GameOver_Implementation()
 	HideSpectatorHUD();
 	
 	ShowGameOverWidget();
+}
+
+void AGRBattlePlayerController::ClientRPC_ShowNotifyMessage_Implementation(const FText& Message,float ShowMessageTime)
+{
+	ShowNotifyMessage(Message,ShowMessageTime);
+}
+
+
+void AGRBattlePlayerController::ShowNotifyMessage(const FText& Message, float ShowMessageTime)
+{
+	if (!HUDWidgetInstance)
+	{
+		UE_LOG(LogTemp, Error, TEXT("HUDWidgetInstance (UGRBattleHUDWidget) is INVALID"));
+		return;
+	}
+
+	UGRNotifyMessageWidget* NotifyWidget = HUDWidgetInstance->GetNotifyMessageWidget();
+
+	if (!NotifyWidget)
+	{
+		return;
+	}
+	
+	NotifyWidget->SetNotifyMessage(Message,ShowMessageTime);
 }
 
 void AGRBattlePlayerController::ShowGameOverWidget()
