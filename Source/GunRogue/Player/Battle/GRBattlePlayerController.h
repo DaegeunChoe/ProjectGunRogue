@@ -285,7 +285,7 @@ public:
 
 	UFUNCTION()
 	void RequestSelectAugment(FName AugmentID);
-	
+
 protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget|Class")
 	TSubclassOf<UGRAugmentHUDWidget> AugmentWidgetClass;
