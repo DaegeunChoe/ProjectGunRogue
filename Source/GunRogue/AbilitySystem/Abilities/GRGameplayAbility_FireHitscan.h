@@ -2,7 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "AbilitySystem/Abilities/GRGameplayAbility_FireWeapon.h"
-#include "GRGameplayAbility_HitscanAttack.generated.h"
+#include "GRGameplayAbility_FireHitscan.generated.h"
 
 class UGameplayEffect;
 
@@ -11,7 +11,7 @@ class UGameplayEffect;
  */
 
 UCLASS()
-class GUNROGUE_API UGRGameplayAbility_HitscanAttack : public UGRGameplayAbility_FireWeapon
+class GUNROGUE_API UGRGameplayAbility_FireHitscan : public UGRGameplayAbility_FireWeapon
 {
 	GENERATED_BODY()
 
@@ -19,8 +19,6 @@ class GUNROGUE_API UGRGameplayAbility_HitscanAttack : public UGRGameplayAbility_
 protected:
 
 	virtual void FireWeapon() override;
-
-private:
 
 	// Muzzle에서 타겟으로 라인 트레이스 (히트스캔 전용)
 	bool TraceFromMuzzle(const FVector& MuzzleLoc, const FVector& TargetPoint, FHitResult& OutHit);
